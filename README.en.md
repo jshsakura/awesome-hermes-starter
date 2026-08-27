@@ -1,6 +1,6 @@
 <img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
 
-**[한국어](README.md)** · English
+[🇰🇷 한국어](README.md) · 🇺🇸 English
 
 **A setup helper for [Hermes Agent](https://github.com/NousResearch/Hermes-Agent), for people starting out.**
 
@@ -19,6 +19,30 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 
 **Installing on a NAS? See the [per-box copy-paste guide](docs/deploy.en.md)** —
 plain Docker · Portainer and Synology DSM. No terminal.
+
+## What Hermes is
+
+An **open-source AI assistant** from Nous Research. Not a chatbot: told to do something,
+it opens files, reads pages and runs programs. And it does that **on your own server** —
+the conversations and the memory land on your disk, not someone else's service.
+
+- **You give it work.** "Tidy my downloads" — in plain words. Which tool to reach for is its problem, not yours
+- **It remembers.** Memory and skills persist between sessions. It fits itself to how you work
+- **From your phone.** Connect Telegram and you can use it from anywhere. A NAS is always on
+- **It is yours.** Only the model is borrowed from outside; everything else stays on your server
+
+## Why this exists
+
+Hermes is **not hard to install.** `curl | bash` and it is on your machine. What comes
+after is the hard part.
+
+- **You stay in the terminal.** `source ~/.bashrc` → `hermes model` → `hermes setup`
+- **It touches your host.** uv, Python 3.11, Node.js, ripgrep and ffmpeg get installed.
+  There is a Docker path, but upstream's compose is `build: .` — it compiles SQLite from source
+- **You still need a paid key.** Find a provider key or buy a subscription before the first reply
+
+This distribution removes all three. Browser only, nothing on the host but Docker, and
+you start on **OpenRouter's free models.**
 
 ## First-run setup, in the browser
 
@@ -47,97 +71,57 @@ Korean, [start there](README.md#큐레이션-목록).
 
 ---
 
-## Why this exists
-
-Hermes is **not hard to install.** `curl | bash` and it is on your machine. What comes
-after is the hard part.
-
-- **You stay in the terminal.** `source ~/.bashrc` → `hermes model` → `hermes setup`
-- **It touches your host.** uv, Python 3.11, Node.js, ripgrep and ffmpeg get installed.
-  There is a Docker path, but upstream's compose is `build: .` — it compiles SQLite from source
-- **You still need a paid key.** Find a provider key or buy a subscription before the first reply
-
-This distribution removes all three. Browser only, nothing on the host but Docker, and
-you start on **OpenRouter's free models.**
-
-## What's inside
-
-| Service | What it does |
-|---|---|
-| `gateway` | Talks to Telegram. Long-polls, so it **publishes no port** |
-| `dashboard` | The web UI. Published, and therefore **login-protected** |
-| `freemodels` | Keeps the free-model list current (optional) |
-
-The image is the published `nousresearch/hermes-agent:latest`. **Nothing is built and
-no version is pinned** — you always get current Hermes. This repo is compose files and
-documentation; it does not fork or patch Hermes.
-
-## First run
-
-All `.env` needs is **a login and two random strings.** No API key, no bot token.
+## Install
 
 ```bash
-cp .env.example .env
-
-# DASHBOARD_USER / DASHBOARD_PASSWORD  — one account for both screens
-# DASHBOARD_SECRET=$(openssl rand -hex 32)
-# API_SERVER_KEY=$(openssl rand -hex 24)
-
+git clone https://github.com/jshsakura/awesome-hermes-starter && cd awesome-hermes-starter
+cp .env.example .env    # just a login and two random strings
 HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 ```
 
-Then open **`http://<your-server>:9120`** and walk the five steps. Getting an
-OpenRouter key and creating a Telegram bot are both explained on screen.
+Then open **`http://<your-server>:9120`**. Getting an OpenRouter key and creating a
+Telegram bot are both explained on screen. Neither goes in `.env`.
 
-> **Never leave `TELEGRAM_ALLOWED_USERS` empty.** If it is, anyone who finds your
-> bot is talking to your agent — with your files, your keys and your quota. The
-> setup screen fills it in for you, and refuses to save it empty.
+**On a NAS you need no terminal at all.** The compose to copy and the three things to
+change are on [the site](https://jshsakura.github.io/awesome-hermes-starter/); per-box steps are in the
+[install guide](docs/deploy.en.md) (plain Docker · Portainer · Synology DSM).
 
-If you would rather do it from a terminal, `scripts/telegram-chat-id.sh` prints
-your chat id. **Stop the gateway first** with `docker compose stop gateway` —
-Telegram hands each update to whoever asks first, and only once.
+## After it is installed
 
-## Free models keep changing
+1. **Say something.** Ask in the chat tab or on Telegram, in ordinary words
+2. **Give it files.** It sees only what is in `./files`. Do not mount the whole NAS share
+3. **Know the limit.** 50 requests a day on free models; it falls through to your fallbacks, and resets at midnight UTC
+4. **Back it up.** `./data` is everything it remembers
+5. **Graduate.** When you are comfortable, use `:9119` — skills, schedules and sessions live there
 
-On a single day, 2026-08-27, `deepseek-chat-v3.1:free`, `llama-3.3-70b:free` and
-`gemma-3-27b:free` all lost their free endpoint — **while keeping the same name.**
-Pin a model id and one day it quietly stops working.
+> **Told to, the agent will delete files.** Leave the approval prompts on (no `--yolo`),
+> and do not keep the only copy of anything in `./files`.
 
-[free-rotator](https://github.com/GoSlowPoke168/hermes-openrouter-free-rotator) re-reads
-the list daily and rewrites `model.default` and the fallbacks. It drives that from a
-**system crontab**, though, and there is no cron daemon inside the container. So the
-`freemodels` service runs the same command from a plain sleep loop instead
-(**00:01 UTC** — the free allowance resets at midnight UTC).
+## What to know about free models
 
-It rewrites your config, so it is off by default:
+**The list keeps changing.** On a single day, 2026-08-27, `deepseek-chat-v3.1:free`,
+`llama-3.3-70b:free` and `gemma-3-27b:free` all lost their free endpoint — **while keeping
+the same name.** A pinned model id quietly stops working, which is why the setup screen
+re-reads the list every time.
+
+**It is 50 requests a day.** Failed 429s count, and it resets at midnight UTC. **Buying
+$10 of credit once raises that to 1,000/day permanently** — a lifetime unlock, not a
+balance requirement. More than $10 buys nothing extra.
+
+**Free variants are squeezed copies.** Free endpoints run fp4, fp8 or nvfp4; none are bf16.
+
+**Your prompts may be trained on.** Many free endpoints only open up once you enable the
+privacy toggles on your OpenRouter account.
+
+If you want the list refreshed for you, add
+[free-rotator](https://github.com/GoSlowPoke168/hermes-openrouter-free-rotator). There is
+no cron daemon in a container, so the `freemodels` service runs it from a sleep loop
+instead. It rewrites your config, so it is off by default.
 
 ```bash
 docker compose exec gateway hermes plugins install GoSlowPoke168/hermes-openrouter-free-rotator
 docker compose --profile freemodels up -d
 ```
-
-## Things worth knowing
-
-**The free tier is 50 requests a day.** Failed 429s count too, and it resets at midnight
-UTC. **Buying $10 of credit once raises it to 1,000/day permanently** — a lifetime unlock,
-not a balance requirement, so spending the credit later does not drop you back. More than
-$10 buys you nothing extra.
-
-**Free variants are squeezed copies of the same model.** Free endpoints run fp4, fp8 or
-nvfp4; none are bf16. `nemotron-3.5-lightning` is bf16 on the paid endpoint and nvfp4 on
-the free one.
-
-**Your prompts may be trained on.** Many free endpoints only open up once you enable the
-privacy toggles on your OpenRouter account (*Free endpoints that may train on request data*
-and friends).
-
-**Only `./files` is visible to the agent.** Do not mount your whole NAS share.
-`./data` is everything Hermes remembers — that is what you back up.
-
-**The dashboard refuses to start without auth.** A non-loopback bind with no auth provider
-is a startup error (`--insecure` stopped bypassing this in the June 2026 hardening).
-
----
 
 # Curated list
 

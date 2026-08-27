@@ -148,3 +148,6 @@ footer a { color: var(--muted); }
 .cards b { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
 .cards span { color: var(--muted); font-size: 13.5px; }
 @media (max-width: 620px) { .cards { grid-template-columns: 1fr; } }
+
+.lang { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+.lang .flag { width: 19px; height: 13px; display: block; flex: none; }

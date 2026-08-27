@@ -1,6 +1,6 @@
 <img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
 
-한국어 · **[English](README.en.md)**
+🇰🇷 한국어 · [🇺🇸 English](README.en.md)
 
 **초보자를 위한 [Hermes Agent](https://github.com/NousResearch/Hermes-Agent) 설정 도우미.**
 
@@ -20,6 +20,29 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 **나스에 올리는 사람은 [기종별 복붙 설치 문서](docs/deploy.md)를 보면 된다** —
 일반 도커·포테이너와 Synology DSM 두 갈래로 적었다. 터미널이 필요 없다.
 
+## 헤르메스가 뭔가
+
+Nous Research 가 만든 **오픈소스 AI 비서**다. 대화만 하는 챗봇이 아니라, 시키면
+실제로 파일을 열고 웹을 읽고 프로그램을 돌린다. 그걸 **내 서버 안에서** 한다 —
+대화도 기억도 남의 서비스가 아니라 내 디스크에 쌓인다.
+
+- **시켜서 쓴다.** "다운로드 폴더 정리해줘" 처럼 말로 시킨다. 어떤 도구를 쓸지는 에이전트가 고른다
+- **기억한다.** 세션이 끝나도 기억과 스킬이 남는다. 쓸수록 내 방식에 맞춰진다
+- **폰에서 시킨다.** 텔레그램에 붙이면 밖에서도 시킬 수 있다. 나스는 켜져 있으니 24시간 대기한다
+- **내 것이다.** 모델만 밖에서 빌려 쓰고 나머지는 전부 내 서버 안이다
+
+## 왜 이게 따로 필요한가
+
+헤르메스는 **설치가 어려운 게 아니다.** `curl | bash` 한 줄이면 깔린다. 어려운 건 그 다음이다.
+
+- **터미널을 계속 쓴다.** `source ~/.bashrc` → `hermes model` → `hermes setup`
+- **호스트를 건드린다.** uv · Python 3.11 · Node.js · ripgrep · ffmpeg 가 깔린다.
+  도커 경로가 있지만 업스트림 compose 는 `build: .` 라 SQLite 부터 소스 빌드한다
+- **결국 유료 키가 필요하다.** 프로바이더 키를 구하거나 구독을 해야 첫 마디를 뗀다
+
+이 배포판은 셋을 없앤다. 브라우저만 쓰고, 호스트엔 도커 말고 아무것도 안 깔고,
+**OpenRouter 무료 모델**로 시작한다.
+
 ## 브라우저에서 끝나는 첫 설정
 
 `docker compose up` 뒤에 **`http://<서버주소>:9120`** 을 열면 초심자용 설정 화면이 뜬다.
@@ -38,102 +61,62 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 
 한국어·영어를 화면에서 토글할 수 있다.
 
----
-
-아래 절반은 **한국어 큐레이션 목록**이다. 헤르메스 생태계는 이미 크고
-(본체 236,907★) 좋은 게 다 있는데, 한국어로 정리된 게 없다.
-
----
-
-## 왜 이게 따로 필요한가
-
-헤르메스는 **설치가 어려운 게 아니다.** `curl | bash` 한 줄이면 깔린다. 어려운 건 그 다음이다.
-
-- **터미널을 계속 쓴다.** `source ~/.bashrc` → `hermes model` → `hermes setup`
-- **호스트를 건드린다.** uv · Python 3.11 · Node.js · ripgrep · ffmpeg 가 깔린다.
-  도커 경로가 있지만 업스트림 compose 는 `build: .` 라 SQLite 부터 소스 빌드한다
-- **결국 유료 키가 필요하다.** 프로바이더 키를 구하거나 구독을 해야 첫 마디를 뗀다
-
-이 배포판은 셋을 없앤다. 브라우저만 쓰고, 호스트엔 도커 말고 아무것도 안 깔고,
-**OpenRouter 무료 모델**로 시작한다.
-
-## 들어있는 것
-
-| 서비스 | 하는 일 |
-|---|---|
-| `gateway` | 텔레그램으로 대화. 롱폴이라 **포트를 안 연다** |
-| `dashboard` | 웹 UI. 열려 있으므로 **ID/PW 로그인 필수** |
-| `freemodels` | 무료 모델 목록 자동 갱신 (선택) |
-
-이미지는 공개 이미지 `nousresearch/hermes-agent:latest`. **빌드가 없고 버전을 고정하지
-않는다** — 헤르메스는 항상 최신이 뜬다. 이 저장소는 compose 와 문서뿐이고, 헤르메스를
-포크하지도 수정하지도 않는다.
-
-## 처음 켤 때
-
-`.env` 에 적을 것은 **로그인 정보 두 줄과 무작위 문자열 두 개**가 전부다.
-API 키도 봇 토큰도 여기 안 적는다.
+## 설치
 
 ```bash
-cp .env.example .env
-
-# DASHBOARD_USER / DASHBOARD_PASSWORD  — 두 화면이 같이 쓰는 계정
-# DASHBOARD_SECRET=$(openssl rand -hex 32)
-# API_SERVER_KEY=$(openssl rand -hex 24)
-
+git clone https://github.com/jshsakura/awesome-hermes-starter && cd awesome-hermes-starter
+cp .env.example .env    # 로그인 계정과 무작위 문자열 두 개만 정한다
 HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 ```
 
-그리고 **`http://<서버주소>:9120`** 을 열어 다섯 단계를 따라가면 된다.
-OpenRouter 키 발급도, 텔레그램 봇 만들기도 화면이 안내한다.
+그리고 **`http://<서버주소>:9120`** 을 연다. OpenRouter 키 발급도 텔레그램 봇 만들기도
+화면이 안내한다. API 키와 봇 토큰은 `.env` 에 적지 않는다.
 
-> **`TELEGRAM_ALLOWED_USERS` 를 비워두지 마라.** 비어 있으면 봇을 찾은 아무나
-> 내 에이전트와 대화한다 — 내 파일, 내 키, 내 쿼터로. 설정 화면이 대신 채워주고,
-> 비어 있으면 저장 자체를 거부한다.
+**나스에 올린다면 터미널이 아예 필요 없다.** 복붙할 compose 와 고칠 세 곳은
+[사이트](https://jshsakura.github.io/awesome-hermes-starter/)에 있고, 기종별 안내는 [설치 문서](docs/deploy.md)에 있다
+(일반 도커·포테이너 · Synology DSM).
 
-터미널에서 직접 하고 싶다면 `scripts/telegram-chat-id.sh` 가 chat id 를 찍어준다.
-그때는 **먼저 `docker compose stop gateway`** 로 게이트웨이를 멈춰야 한다 —
-텔레그램은 같은 토큰의 업데이트를 먼저 묻는 쪽에 한 번만 주기 때문이다.
+## 설치한 다음
 
-## 무료 모델은 계속 바뀐다
+1. **말을 건다.** 대화 탭이나 텔레그램에서 평소 말투로 시킨다
+2. **파일을 준다.** `./files` 에 넣은 것만 에이전트가 본다. 나스 공유 전체를 붙이지 마라
+3. **한도를 안다.** 무료 모델은 하루 50번. 막히면 대체 모델로 넘어가고 한국시간 09:00 에 초기화된다
+4. **백업한다.** `./data` 가 기억하는 전부다
+5. **본판으로 넘어간다.** 익숙해지면 `:9119`. 스킬·예약·세션이 거기 있다
 
-2026-08-27 하루에만 `deepseek-chat-v3.1:free`, `llama-3.3-70b:free`,
-`gemma-3-27b:free` 셋이 무료판을 잃었다 — **이름은 그대로인 채로.**
-모델 id 를 박아두면 어느 날 조용히 안 된다.
+> **에이전트는 시키면 파일을 지운다.** 승인 프롬프트를 끄지 말고(`--yolo` 금지),
+> `./files` 에는 없어지면 곤란한 원본을 두지 마라.
 
-[free-rotator](https://github.com/GoSlowPoke168/hermes-openrouter-free-rotator)가 매일
-목록을 다시 읽어 `model.default` 와 폴백을 갈아준다. 다만 그건 **시스템 crontab** 을 쓰는데
-컨테이너 안엔 cron 데몬이 없다. 그래서 `freemodels` 서비스가 crontab 대신 잠들었다 깨는
-루프로 같은 명령을 돌린다 (**00:01 UTC** — 무료 쿼터가 UTC 자정에 리셋되기 때문).
+## 무료 모델에 대해 알아둘 것
 
-내 config 를 고쳐 쓰는 서비스라 기본은 꺼져 있다:
+**목록이 계속 바뀐다.** 2026-08-27 하루에만 `deepseek-chat-v3.1:free`,
+`llama-3.3-70b:free`, `gemma-3-27b:free` 셋이 무료판을 잃었다 — **이름은 그대로인 채로.**
+모델 id 를 박아두면 어느 날 조용히 안 된다. 그래서 설정 화면이 매번 목록을 다시 읽는다.
+
+**하루 50번이다.** 실패한 429 도 카운트되고 UTC 자정(한국시간 **09:00**)에 리셋된다.
+**$10 을 한 번 충전하면 1,000회/일로 영구히 올라간다** — 잔액 조건이 아니라 평생 해금이라
+크레딧을 다 써도 등급은 유지된다. 더 넣어도 그 이상은 안 오른다.
+
+**무료판은 같은 모델의 더 눌린 사본이다.** 무료 엔드포인트는 fp4·fp8·nvfp4 로 돌고
+bf16 이 하나도 없다.
+
+**프롬프트가 학습에 쓰일 수 있다.** 무료 엔드포인트 상당수가 OpenRouter 계정의 Privacy
+토글을 켜야 열린다.
+
+목록 자동 갱신을 원하면 [free-rotator](https://github.com/GoSlowPoke168/hermes-openrouter-free-rotator)를
+붙일 수 있다. 컨테이너엔 cron 데몬이 없어서 `freemodels` 서비스가 대신 잠들었다 깨는
+루프로 돌린다 — 내 config 를 고쳐 쓰므로 기본은 꺼져 있다.
 
 ```bash
 docker compose exec gateway hermes plugins install GoSlowPoke168/hermes-openrouter-free-rotator
 docker compose --profile freemodels up -d
 ```
 
-## 알아둘 것
-
-**무료 티어는 하루 50번.** 실패한 429 도 카운트되고 UTC 자정(한국시간 **09:00**)에 리셋된다.
-**$10 을 한 번 충전하면 1,000회/일로 영구히 올라간다** — 잔액 조건이 아니라 평생 해금이라
-크레딧을 다 써도 등급은 유지된다. 더 넣어도 그 이상은 안 오른다.
-
-**무료판은 같은 모델의 더 눌린 사본이다.** 무료 엔드포인트는 fp4·fp8·nvfp4 로 돌고 bf16 이
-하나도 없다. `nemotron-3.5-lightning` 은 유료가 bf16, 무료가 nvfp4다.
-
-**프롬프트가 학습에 쓰일 수 있다.** 무료 엔드포인트 상당수가 OpenRouter 계정의 Privacy
-토글(*Free endpoints that may train on request data* 등)을 켜야 열린다.
-
-**`./files` 만 에이전트에게 보인다.** NAS 공유 전체를 마운트하지 마라.
-`./data` 가 헤르메스가 기억하는 전부다 — 백업 대상은 여기다.
-
-**대시보드는 인증 없이는 아예 안 뜬다.** 비루프백 바인드에 인증 provider 가 없으면 서버가
-기동을 거부한다(`--insecure` 는 2026-06 하드닝 이후 무효).
-
 ---
 
 # 큐레이션 목록
+
+헤르메스 생태계는 이미 크고(본체 236,975★) 좋은 게 다 있는데, 한국어로 정리된 게 없다.
 
 별 수는 2026-08-27 기준. **관리되지 않는 것도 솔직히 표시했다** — 링크만 모아두면
 막다른 길로 보내게 된다.

@@ -27,7 +27,10 @@
       </svg>
       <h1>awesome-hermes-starter</h1>
     </div>
-    <button class="lang" id="lang" type="button"></button>
+    <button class="lang" id="lang" type="button">
+      <svg class="flag" id="flag" viewBox="0 0 24 16" aria-hidden="true"></svg>
+      <span id="langtext"></span>
+    </button>
   </header>
 
   <p class="lede" data-ko="초보자를 위한 헤르메스 에이전트 설정 도우미."
@@ -172,6 +175,20 @@
 
 <script>
   // Korean first, English alongside — the same rule the app and the READMEs use.
+  const FLAG_KR =
+    '<rect x=".5" y=".5" width="23" height="15" fill="#fff" stroke="currentColor"/>' +
+    '<path d="M12 8a2.4 2.4 0 0 1 4.8 0 2.4 2.4 0 0 1-4.8 0Z" fill="#cd2e3a"/>' +
+    '<path d="M7.2 8a2.4 2.4 0 0 1 4.8 0 2.4 2.4 0 0 1-4.8 0Z" fill="#0047a0"/>' +
+    '<g stroke="#111" stroke-width=".7"><path d="M3.4 4.2l1.5 2.2M4.6 3.4l1.5 2.2"/>' +
+    '<path d="M19.4 11.6l-1.5-2.2M18.2 12.4l-1.5-2.2"/></g>'
+  const FLAG_US =
+    '<rect width="24" height="16" fill="#fff"/>' +
+    '<g fill="#b22234"><rect width="24" height="1.85"/><rect y="3.7" width="24" height="1.85"/>' +
+    '<rect y="7.4" width="24" height="1.85"/><rect y="11.1" width="24" height="1.85"/>' +
+    '<rect y="14.15" width="24" height="1.85"/></g>' +
+    '<rect width="10" height="8.6" fill="#3c3b6e"/>' +
+    '<rect x=".5" y=".5" width="23" height="15" fill="none" stroke="currentColor"/>'
+
   const pick = () => localStorage.getItem('lang') || ((navigator.language || '').startsWith('ko') ? 'ko' : 'en')
   let lang = pick()
 
@@ -180,7 +197,10 @@
     for (const el of document.querySelectorAll('[data-ko]')) {
       el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en
     }
-    document.getElementById('lang').textContent = lang === 'ko' ? 'English' : '한국어'
+    // Show the language you would switch *to*, flag first — a signpost, not a
+    // status badge. Inline SVG because emoji flags do not render on Windows.
+    document.getElementById('langtext').textContent = lang === 'ko' ? 'English' : '한국어'
+    document.getElementById('flag').innerHTML = lang === 'ko' ? FLAG_US : FLAG_KR
     try { localStorage.setItem('lang', lang) } catch (e) { /* private mode */ }
   }
   document.getElementById('lang').onclick = () => { lang = lang === 'ko' ? 'en' : 'ko'; apply() }

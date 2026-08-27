@@ -1,0 +1,593 @@
+/* Same design language as the Hermes dashboard: amber on a warm near-black,
+   thin 1px rules, 0.5rem radii, and colour derived by mixing one accent into
+   the background rather than by picking greys. Those values are read off the
+   shipped bundle so the two screens feel like one product.
+
+   What is deliberately not copied: their typefaces (Collapse, Mondwest,
+   RulesCompressed) are licensed commercial fonts and cannot ship in an MIT
+   repo. Latin falls back to the system stack they themselves fall back to;
+   Hangul gets Pretendard, which is OFL and bundled here so the page needs no
+   network to look right. */
+
+@import 'pretendard/dist/web/variable/pretendardvariable.css';
+/* Archivo (OFL) carries a width axis, so one file covers both the condensed
+   wordmark and the wide-tracked labels Hermes uses its licensed display faces
+   for. Latin only — Hangul falls through to Pretendard. */
+@import '@fontsource-variable/archivo/wdth.css';
+
+:root {
+  --bg-base: #041c1c;
+  --mid-base: #ffe6cb;
+
+  --bg: var(--bg-base);
+  --fg: #fff;
+  --accent: var(--mid-base);
+
+  --card: color-mix(in srgb, var(--mid-base) 4%, var(--bg-base));
+  --muted-bg: color-mix(in srgb, var(--mid-base) 8%, var(--bg-base));
+  --line: color-mix(in srgb, var(--mid-base) 15%, transparent);
+  --line-strong: color-mix(in srgb, var(--mid-base) 32%, transparent);
+  --muted: color-mix(in srgb, var(--mid-base) 55%, transparent);
+
+  --good: #4ade80;
+  --warn: #ffbd38;
+  --bad: #fb2c36;
+
+  --radius: 0;   /* squared off — straight lines only */
+
+  --font-sans: 'Pretendard Variable', Pretendard, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Uppercase + wide tracking on labels, monospace on values. Half of the
+     dashboard's character is this split, not the palette. */
+  --track-label: 0.11em;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --font-display: 'Archivo Variable', 'Pretendard Variable', system-ui, sans-serif;
+}
+
+/* Browsers without color-mix get the same palette, flattened. */
+@supports not (color: color-mix(in srgb, red, red)) {
+  :root {
+    --card: #0a2222;
+    --muted-bg: #0e2726;
+    --line: #2a3f3b;
+    --line-strong: #4d635c;
+    --muted: #8f9a92;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { max-width: 780px; margin: 0 auto; padding: 52px 20px 72px; }
+.app.narrow { max-width: 440px; padding-top: 88px; }
+/* At login width the two cannot sit side by side without crowding, so they
+   stack and the language control moves under the wordmark. */
+.app.narrow header { flex-wrap: wrap; row-gap: 14px; margin-bottom: 18px; }
+.app.narrow header .lang { margin-left: auto; }
+
+/* --- header ---------------------------------------------------------------- */
+
+header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 28px;              /* the wordmark and the controls must never touch */
+  margin-bottom: 4px;
+}
+h1 {
+  font-family: var(--font-display); font-variation-settings: 'wdth' 125;
+  font-size: 24px; margin: 0 0 6px; letter-spacing: 0.02em; font-weight: 700;
+  text-transform: uppercase;
+}
+h2 {
+  font-family: var(--font-display); font-variation-settings: 'wdth' 125;
+  font-size: 14px; margin: 0; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.13em;
+}
+h3 { font-family: var(--font-display); font-variation-settings: 'wdth' 125; font-size: 11px; margin: 28px 0 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.13em; }
+.sub { color: var(--muted); margin: 0; font-size: 14px; }
+
+.hactions { display: flex; gap: 8px; flex: none; margin-left: auto; }
+
+.lang {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: transparent; border: 1px solid var(--line); color: var(--muted);
+  padding: 7px 13px; font-size: 13px;
+}
+.lang { text-transform: none; letter-spacing: 0; font-size: 13px; white-space: nowrap; }
+.hactions { flex-wrap: nowrap; }
+.lang svg.flag { width: 19px; height: 13px; border-radius: 2px; display: block; flex: none; }
+
+/* --- step rail ---------------------------------------------------------------
+   Five boxes, not five labels hanging off a rule. Each step is a tile you can
+   see the edges of, which is what makes the row read as a set of destinations
+   rather than as decoration under the tabs. */
+
+.steps { display: flex; gap: 8px; margin: 0 0 26px; }
+.step {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 9px;
+  border: 1px solid var(--line); background: transparent;
+  color: var(--muted); padding: 15px 6px 12px;
+  font-size: 10.5px; cursor: pointer; font-family: var(--font-display);
+  text-transform: uppercase; letter-spacing: var(--track-label); font-weight: 600;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.step svg { width: 26px; height: 26px; }
+.step:hover { color: var(--fg); border-color: var(--line-strong); background: var(--muted-bg); }
+
+/* Active is the filled one — it is where you are, so it gets the accent as a
+   ground rather than as an outline. */
+.step.active {
+  color: var(--bg-base); background: var(--accent); border-color: var(--accent);
+}
+/* Done is outlined green: finished, but not where you are standing. */
+.step.done { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.step.done:hover { color: var(--good); border-color: var(--good); background: var(--muted-bg); }
+.step.done.active {
+  color: var(--bg-base); background: var(--good); border-color: var(--good);
+}
+
+/* --- cards ----------------------------------------------------------------- */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--accent);   /* the accent that says "this panel" */
+  padding: 0 26px 26px;
+  position: relative;
+}
+.card > p { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+
+/* Title sits in a band under the accent, divided by a hairline — the panel
+   header pattern the dashboard uses, not a heading floating in padding. */
+.chead {
+  display: flex; align-items: center; gap: 13px;
+  margin: 0 -26px 22px; padding: 15px 26px;
+  border-bottom: 1px solid var(--line);
+}
+.chead svg { width: 22px; height: 22px; color: var(--accent); flex: none; }
+
+.row { display: flex; gap: 8px; margin: 18px 0; }
+.row.between { justify-content: space-between; align-items: center; }
+
+input[type='password'], input[type='text'] {
+  flex: 1; min-width: 0;
+  background: var(--bg-base); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 11px 13px; font-family: var(--font-mono); font-size: 14px;
+}
+input:focus, textarea:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+button:focus-visible, .button:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+
+button, .button {
+  background: transparent; color: var(--fg);
+  font-family: var(--font-display); font-variation-settings: 'wdth' 118;
+  text-transform: uppercase; letter-spacing: 0.09em; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 10px 17px; cursor: pointer; font-family: inherit;
+  text-decoration: none; display: inline-block; text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+button:hover:not(:disabled), .button:hover { border-color: var(--line-strong); background: var(--muted-bg); }
+/* Disabled must not look like a filled control that failed to render: drop the
+   fill, keep the outline, dim the label. */
+button:disabled, .button:disabled { cursor: default; color: var(--muted); }
+button.primary:disabled, .button.primary:disabled {
+  background: transparent; border-color: var(--line); color: var(--muted); font-weight: 600;
+}
+button:not(.primary):disabled { border-color: var(--line); opacity: 0.55; }
+button.primary, .button.primary {
+  background: var(--accent); border-color: var(--accent); color: var(--bg-base); font-weight: 600;
+}
+button.primary:hover:not(:disabled), .button.primary:hover { background: var(--accent); filter: brightness(1.08); }
+button.wide, .button.wide { width: 100%; margin-top: 18px; }
+button.link { background: none; border: none; color: var(--muted); padding: 14px 0; }
+button.link:hover { background: none; color: var(--fg); }
+
+a {
+  color: var(--accent); text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+a:hover { text-decoration-color: var(--accent); }
+code { font-family: var(--font-mono); font-size: 0.88em; }
+hr { border: none; border-top: 1px solid var(--line); margin: 26px 0; }
+
+/* Callout — an aside that is still a panel. A hairline box with the accent
+   only on the left edge, and a tracked label sitting in the border itself, so
+   it reads as "by the way" without turning into another grey paragraph. */
+.callout {
+  position: relative;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  padding: 15px 16px 14px;
+  margin: 20px 0 0;
+  font-size: 13px; line-height: 1.6;
+  color: var(--muted);
+  background: var(--muted-bg);
+}
+.callout .clabel {
+  position: absolute; top: -7px; left: 14px;
+  background: var(--card); padding: 0 7px;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent);
+}
+.callout code {
+  color: var(--fg);
+  border: 1px solid var(--line); padding: 1px 5px;
+  white-space: nowrap;
+}
+.callout.warn { border-left-color: var(--warn); }
+.callout.warn .clabel { color: var(--warn); }
+.callout.warn { color: color-mix(in srgb, var(--warn) 78%, var(--fg)); }
+
+.note {
+  color: var(--muted); font-size: 13px; line-height: 1.6;
+  border-left: 1px solid var(--line); padding-left: 14px; margin: 18px 0 0;
+}
+.muted { color: var(--muted); }
+.ok { color: var(--good); font-size: 13.5px; margin: 10px 0; }
+.error {
+  border: 1px solid var(--bad); color: var(--bad);
+  padding: 12px 15px; border-radius: var(--radius); margin-bottom: 18px;
+  font-size: 14px; cursor: pointer;
+}
+
+
+/* --- model list ------------------------------------------------------------ */
+
+.models {
+  list-style: none; margin: 14px 0 0;
+  max-height: 400px; overflow-y: auto;
+  /* A scroll region draws its own frame. Without it the list bleeds into the
+     card and a clipped row at the boundary reads as a rendering fault rather
+     than as "there is more below". */
+  border: 1px solid var(--line);
+  background: var(--bg-base);
+  padding: 10px;
+}
+.models li:last-child { margin-bottom: 0; }
+.models li {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 13px 15px; margin-bottom: 8px;
+}
+.models li { transition: border-color 0.15s, background 0.15s; }
+.models li:hover { border-color: var(--line-strong); }
+.models li.sel { border-color: var(--accent); background: var(--muted-bg); }
+.mhead { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mid { display: block; color: var(--muted); margin: 5px 0 11px; word-break: break-all; }
+.mactions { display: flex; gap: 6px; }
+.mactions button { padding: 5px 13px; font-size: 13px; }
+
+.tag {
+  font-family: var(--font-display); font-size: 10.5px;
+  text-transform: uppercase; letter-spacing: 0.07em; border: 1px solid var(--line); border-radius: 999px;
+  padding: 2px 9px; color: var(--muted); white-space: nowrap;
+  border-radius: 0;
+}
+.tag.good { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, transparent); }
+.tag.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+
+.chats { list-style: none; padding: 0; margin: 14px 0; }
+.chats li { padding: 6px 0; }
+.chats label { display: flex; align-items: center; gap: 9px; cursor: pointer; }
+
+/* --- tools ----------------------------------------------------------------- */
+
+.tools { list-style: none; padding: 0; margin: 10px 0; }
+.tools li {
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 14px 15px; margin-bottom: 8px;
+}
+.tools li.on { border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+.tools li p { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+
+.summary { display: grid; grid-template-columns: auto 1fr; gap: 8px 24px; margin: 18px 0 26px; }
+.summary dt {
+  color: var(--muted); font-size: 10.5px; font-family: var(--font-display);
+  font-weight: 600; text-transform: uppercase; letter-spacing: var(--track-label);
+}
+.summary dd { margin: 0; word-break: break-all; font-size: 14px; font-family: var(--font-mono); }
+
+.handoff { margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+
+/* --- login ----------------------------------------------------------------- */
+
+.field { display: block; margin: 16px 0; }
+.field span {
+  display: block; font-size: 10.5px; color: var(--muted); margin-bottom: 7px;
+  font-family: var(--font-display); font-weight: 600;
+  text-transform: uppercase; letter-spacing: var(--track-label);
+}
+.field input { width: 100%; }
+
+.mark { display: flex; justify-content: center; margin-bottom: 22px; }
+.mark svg { width: 52px; height: 52px; color: var(--accent); }
+
+/* --- facts ------------------------------------------------------------------
+   Prose is the wrong shape for "50 requests a day" or "resets 09:00 KST". The
+   dashboard states values in a label/value split; these do the same, so a card
+   can be read at a glance instead of parsed. */
+
+.facts { list-style: none; padding: 0; margin: 16px 0 0; border-top: 1px solid var(--line); }
+.facts li {
+  display: grid; grid-template-columns: 128px 1fr; gap: 16px;
+  padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px;
+}
+.facts li:last-child { border-bottom: none; }
+.facts dt, .facts .k {
+  color: var(--muted); font-family: var(--font-display); font-weight: 600;
+  font-size: 10.5px; text-transform: uppercase; letter-spacing: var(--track-label);
+  padding-top: 3px;
+}
+.facts .v { color: var(--fg); }
+.facts .v em { font-style: normal; color: var(--accent); }
+
+@media (max-width: 560px) {
+  .facts li { grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* --- tabs -------------------------------------------------------------------
+   Two views, sitting on the same rule the step rail uses so the header reads as
+   one continuous edge rather than three stacked bars. */
+
+.tabs {
+  display: flex; gap: 26px;              /* the two labels need air between them */
+  margin: 30px 0 36px; border-bottom: 1px solid var(--line);
+}
+.tabs button {
+  border: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  background: none; color: var(--muted); padding: 11px 4px;
+}
+.tabs button:hover { background: none; color: var(--fg); }
+.tabs button.on { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* --- chat -------------------------------------------------------------------
+   A temporary client, on purpose: this exists to prove the agent answers before
+   Telegram is wired up. Panel, thread, composer — nothing else. */
+
+.chat {
+  margin-top: 0;
+  border: 1px solid var(--line);
+  border-top: 2px solid var(--accent);
+  background: var(--card);
+  display: flex; flex-direction: column;
+  height: min(64vh, 560px);
+}
+
+.chatbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 18px; border-bottom: 1px solid var(--line); flex: none;
+}
+.chattitle {
+  font-family: var(--font-display); font-variation-settings: 'wdth' 125;
+  font-weight: 600; font-size: 14px;
+  text-transform: uppercase; letter-spacing: 0.13em;
+}
+.chatbar button { padding: 6px 12px; }
+
+.thread {
+  flex: 1; overflow-y: auto; padding: 16px;
+  background: var(--bg-base);
+  /* Inset from the panel so the scrolling part is visibly its own box between
+     the title bar and the composer. */
+  margin: 12px; border: 1px solid var(--line);
+}
+.thread .empty { text-align: center; padding: 48px 12px; }
+.thread .empty p { margin: 0 0 4px; }
+
+/* Speaker as a tracked label in the margin, message as plain text: the same
+   label/value split the rest of the app uses, so a thread reads as rows. */
+.msg { display: grid; grid-template-columns: 74px 1fr; gap: 14px; padding: 9px 0; }
+.msg + .msg { border-top: 1px solid var(--line); }
+.msg .who {
+  font-family: var(--font-display); font-weight: 600; font-size: 10px;
+  text-transform: uppercase; letter-spacing: var(--track-label);
+  color: var(--muted); padding-top: 4px;
+}
+.msg.user .who { color: var(--fg); }
+.msg.agent .who { color: var(--accent); }
+.msg.error .who { color: var(--bad); }
+.msg .body { white-space: pre-wrap; word-break: break-word; font-size: 14.5px; }
+.msg.error .body { color: var(--bad); }
+.msg .body.pending { color: var(--muted); }
+.msg .body.pending::after {
+  content: '';
+  display: inline-block; width: 7px; height: 1em; margin-left: 4px;
+  background: var(--accent); vertical-align: -2px;
+  animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink { to { visibility: hidden; } }
+
+.composer {
+  display: flex; gap: 8px; padding: 12px; flex: none;
+  border-top: 1px solid var(--line);
+}
+.composer textarea {
+  flex: 1; resize: none; min-height: 42px; max-height: 140px;
+  background: var(--bg-base); color: var(--fg);
+  border: 1px solid var(--line); padding: 11px 13px;
+  font-family: var(--font-sans); font-size: 15px; line-height: 1.5;
+}
+.composer textarea:focus { outline: none; border-color: var(--line-strong); }
+.composer button { flex: none; }
+
+/* Card-header status chip — used by the tools counter. */
+.chead .state {
+  margin-left: auto;
+  font-family: var(--font-display); font-weight: 600; font-size: 10px;
+  text-transform: uppercase; letter-spacing: var(--track-label);
+  color: var(--muted); border: 1px solid var(--line); padding: 3px 9px;
+}
+.chead .state.on { color: var(--good); border-color: color-mix(in srgb, var(--good) 45%, transparent); }
+
+/* --- mobile ------------------------------------------------------------------
+   The phone is the likely client for a NAS agent, so this is not an afterthought:
+   full-height chat, thumb-reachable composer, and controls that stay tappable. */
+
+@media (max-width: 620px) {
+  .app { padding: 30px 14px 32px; }
+  .app.narrow { padding-top: 44px; }
+  h1 { font-size: 20px; }
+
+  header { flex-wrap: wrap; gap: 10px; }
+  .hactions { width: 100%; }
+  .hactions button { flex: 1; }
+
+  .card { padding: 0 16px 20px; }
+  .chead { margin: 0 -16px 18px; padding: 13px 16px; }
+
+  /* Icons carry the step rail once the labels stop fitting. */
+  .steps { gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .step { min-width: 66px; font-size: 9px; padding: 12px 4px 9px; gap: 7px; }
+  .step svg { width: 21px; height: 21px; }
+
+  .tabs { gap: 18px; margin: 24px 0 26px; }
+  .tabs button { flex: 1; padding: 12px 4px; }
+
+  .chat { height: calc(100dvh - 240px); margin-top: 0; }
+  .thread { padding: 13px; margin: 10px; }
+  .msg { grid-template-columns: 1fr; gap: 3px; }
+  .msg .who { padding-top: 0; }
+  .composer { padding: 10px; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+  /* 16px keeps iOS from zooming the viewport when the field takes focus. */
+  .composer textarea { font-size: 16px; }
+
+  .models { max-height: none; }
+  .mactions button { flex: 1; }
+  .tools li { flex-direction: column; align-items: stretch; gap: 12px; }
+  .row { flex-direction: column; }
+  .row button { width: 100%; }
+}
+
+/* Wordmark — the app's own name in the corner, so the header stops being a
+   headline and starts being a chrome bar. */
+.wordmark { display: flex; align-items: center; gap: 13px; min-width: 0; }
+.wordmark svg { width: 28px; height: 28px; color: var(--accent); flex: none; }
+.wordmark h1 { margin: 0; font-size: 16px; letter-spacing: 0.09em; white-space: nowrap; }
+
+.chead svg { width: 26px; height: 26px; }
+
+/* Icons inside controls. Buttons become inline-flex so the glyph and the label
+   share a baseline instead of the icon dropping below it. */
+button, .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+button svg, .button svg { width: 15px; height: 15px; flex: none; }
+.tabs button svg { width: 17px; height: 17px; }
+a svg { width: 12px; height: 12px; vertical-align: -1px; margin-left: 3px; }
+.composer button svg { width: 17px; height: 17px; }
+
+@media (max-width: 620px) {
+  /* On a phone the send button is the icon; the word is what gets cut. */
+  .composer button .btxt { display: none; }
+  .composer button { padding: 0 16px; }
+}
+
+/* --- scrollbars --------------------------------------------------------------
+   The browser default is a light-grey capsule that floats over a dark panel and
+   reads as a foreign object. This makes it part of the same drawing: square,
+   hairline-wide, and the same mixed-accent tone as every other rule on the page.
+
+   Firefox only takes the two-property form, so both syntaxes are here. */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 42%, transparent) var(--muted-bg);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--muted-bg); }
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 42%, transparent);
+  /* Border-as-inset: padding-box keeps the background off the border, which is
+     how you get a thin bar with a wide, forgiving hit area. */
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--accent) 68%, transparent); background-clip: padding-box; }
+::-webkit-scrollbar-thumb:active { background: var(--accent); background-clip: padding-box; }
+::-webkit-scrollbar-corner { background: var(--muted-bg); }
+
+/* Inside a panel the track gets a left rule, so a scrolling region announces its
+   own edge instead of the thumb hovering in space. */
+.thread::-webkit-scrollbar-track,
+.models::-webkit-scrollbar-track {
+  border-left: 1px solid var(--line);
+}
+
+/* The test reply, shown as a thread row so it looks like what it is: the agent
+   actually answering, not a status message about the agent. */
+.testout {
+  display: grid; grid-template-columns: 74px 1fr; gap: 14px;
+  border: 1px solid var(--line); border-left: 2px solid var(--accent);
+  background: var(--muted-bg); padding: 14px 16px; margin-top: 14px;
+}
+.testout .who {
+  font-family: var(--font-display); font-weight: 600; font-size: 10px;
+  text-transform: uppercase; letter-spacing: var(--track-label); color: var(--accent);
+}
+.testout .body { white-space: pre-wrap; word-break: break-word; font-size: 14px; }
+.testout.bad { border-left-color: var(--bad); }
+.testout.bad .who, .testout.bad .body { color: var(--bad); }
+
+@media (max-width: 620px) {
+  .testout { grid-template-columns: 1fr; gap: 4px; }
+}
+
+/* "Recommended" rides on the name rather than in a column of its own — the
+   list is short enough that a second column would be mostly empty. */
+.tools .pill {
+  margin-left: 9px; font-family: var(--font-display); font-weight: 600;
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--good); border: 1px solid color-mix(in srgb, var(--good) 45%, transparent);
+  padding: 2px 7px; vertical-align: 2px;
+}
+.chead .state.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+
+/* Numbered instructions. A beginner following @BotFather needs the exact
+   sequence, so it is a list with visible numbers rather than a paragraph that
+   happens to mention the steps. */
+.howto { list-style: none; padding: 0; margin: 12px 0 18px; }
+.howto li {
+  display: grid; grid-template-columns: 26px 1fr; gap: 12px;
+  padding: 9px 0; font-size: 13.5px; align-items: start;
+  border-bottom: 1px solid var(--line);
+}
+.howto li:last-child { border-bottom: none; }
+.howto .n {
+  font-family: var(--font-display); font-variation-settings: 'wdth' 118;
+  font-weight: 700; font-size: 11px; color: var(--accent);
+  border: 1px solid var(--line); text-align: center; line-height: 22px; height: 24px;
+}
+.howto b { color: var(--fg); font-weight: 600; }
+.howto code, .card p code {
+  font-family: var(--font-mono); font-size: 0.88em;
+  border: 1px solid var(--line); padding: 1px 5px; color: var(--fg);
+}
+
+/* Short definitions for the words the step itself uses — "primary", "fallback",
+   "context". A beginner meets these here for the first time and there is
+   nowhere else on the page that says what they mean. */
+.glossary { list-style: none; padding: 0; margin: 4px 0 18px; }
+.glossary li {
+  position: relative; padding: 6px 0 6px 16px;
+  font-size: 13.5px; color: var(--muted); line-height: 1.55;
+}
+.glossary li::before {
+  content: ''; position: absolute; left: 0; top: 15px;
+  width: 7px; height: 1px; background: var(--line-strong);
+}
+.glossary b { color: var(--fg); font-weight: 600; }

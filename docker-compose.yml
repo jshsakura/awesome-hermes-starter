@@ -36,7 +36,18 @@ services:
       # edit. `HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d`
       - HERMES_UID=${HERMES_UID:-1000}
       - HERMES_GID=${HERMES_GID:-1000}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      # The image ships HERMES_WRITE_SAFE_ROOT=/opt/data, which means the agent
+      # can read /files but not write to it — the confusing half-failure you get
+      # after mounting a NAS share. It takes multiple paths; add /files back.
+      - HERMES_WRITE_SAFE_ROOT=/opt/data:/files
+      # Turns on the gateway's built-in OpenAI-compatible API. It is what the
+      # setup UI chats through, so you can use the agent without learning the
+      # full dashboard first. Reachable only from the other containers here —
+      # no port is published.
+      - API_SERVER_KEY=${API_SERVER_KEY:?set API_SERVER_KEY in .env}
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_PORT=8642
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
       # Who may talk to the bot. Leave this empty and anyone who finds your
       # bot is talking to your agent, with your files and your quota.
@@ -62,12 +73,83 @@ services:
     environment:
       - HERMES_UID=${HERMES_UID:-1000}
       - HERMES_GID=${HERMES_GID:-1000}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${DASHBOARD_USER:?set DASHBOARD_USER in .env}
       - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${DASHBOARD_PASSWORD:?set DASHBOARD_PASSWORD in .env}
       # Signs session cookies. Without it, every restart logs everyone out.
       - HERMES_DASHBOARD_BASIC_AUTH_SECRET=${DASHBOARD_SECRET:?set DASHBOARD_SECRET in .env}
       - TZ=${TZ:-UTC}
+
+
+  # The screen this repo exists for. Stock Hermes assumes you already have a
+  # provider key and a model id; on a NAS that is the wall people hit. This
+  # walks through key → free model → Telegram → tools, then hands you to the
+  # real dashboard and gets out of the way.
+  #
+  # It writes /opt/data/.env and /opt/data/config.yaml — the paths Hermes itself
+  # reads — so applying a change is one container restart, not a recreate.
+  setup:
+    image: ghcr.io/jshsakura/hermes-starter-setup:latest
+    build: ./setup
+    container_name: hermes-setup
+    restart: unless-stopped
+    depends_on:
+      - socket-proxy
+    ports:
+      - "${SETUP_PORT:-9120}:9120"
+    volumes:
+      - ./data:/opt/data
+    environment:
+      # Same credentials as the Hermes dashboard: this page can write your API
+      # key and your bot token, so it must not be the soft spot beside it.
+      - SETUP_USER=${DASHBOARD_USER:?set DASHBOARD_USER in .env}
+      - SETUP_PASSWORD=${DASHBOARD_PASSWORD:?set DASHBOARD_PASSWORD in .env}
+      # Signs the session cookie. Reuses the dashboard secret so one value in
+      # .env covers both logins; without it every restart signs you out.
+      - SETUP_SECRET=${DASHBOARD_SECRET:?set DASHBOARD_SECRET in .env}
+      - GATEWAY_CONTAINER=hermes-gateway
+      - DOCKER_PROXY_URL=http://socket-proxy:2375
+      - HERMES_API_URL=http://gateway:8642
+      - API_SERVER_KEY=${API_SERVER_KEY:?set API_SERVER_KEY in .env}
+      # Where the "open the Hermes dashboard" button at the end points. Set this
+      # to the address you actually reach the NAS on.
+      - DASHBOARD_URL=${DASHBOARD_URL:-http://localhost:9119}
+      - TZ=${TZ:-UTC}
+
+  # Restarting the gateway needs Docker. Mounting /var/run/docker.sock straight
+  # into a published web app would hand root on the host to anything that got
+  # through it. This proxy exposes only the container endpoints and refuses the
+  # rest — no images, no exec, no volumes, no swarm.
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:0.3.0
+    container_name: hermes-socket-proxy
+    restart: unless-stopped
+    environment:
+      - CONTAINERS=1
+      - POST=1
+      - IMAGES=0
+      - EXEC=0
+      - VOLUMES=0
+      - NETWORKS=0
+      - INFO=0
+      - AUTH=0
+      - SECRETS=0
+      - SERVICES=0
+      - SWARM=0
+      - SYSTEM=0
+      - TASKS=0
+      - NODES=0
+      - PLUGINS=0
+      - BUILD=0
+      - COMMIT=0
+      - CONFIGS=0
+      - DISTRIBUTION=0
+      - SESSION=0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Never publish this. It is reachable only from the other containers here.
+    expose:
+      - "2375"
 
   # Free models on OpenRouter come and go — three lost their free endpoint on a
   # single day in August 2026 while keeping the ``:free`` name everyone had
@@ -102,7 +184,7 @@ services:
     environment:
       - HERMES_UID=${HERMES_UID:-1000}
       - HERMES_GID=${HERMES_GID:-1000}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - TZ=UTC
     profiles:
       # Off unless you ask for it, because it rewrites model.default in your

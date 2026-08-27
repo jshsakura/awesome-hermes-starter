@@ -8,3 +8,20 @@ data/*
 # 에이전트에게 보이는 작업 디렉터리.
 files/*
 !files/.gitkeep
+
+# 검증하려고 호스트 ~/.hermes 를 복사해둔 것. 실제 키가 들어있다.
+data-hostcopy-*/
+data.bak*/
+
+# 설정 화면 빌드 산출물. 이미지 빌드가 만들고 ghcr 이 배포한다.
+setup/web/node_modules/
+setup/web/dist/
+setup/web/.vite/
+
+# 파이썬
+__pycache__/
+*.py[cod]
+
+# 편집기·OS
+.DS_Store
+*.swp

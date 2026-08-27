@@ -1,16 +1,41 @@
-# awesome-hermes-starter
+<img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
+
+한국어 · **[English](README.en.md)**
 
 [Hermes Agent](https://github.com/NousResearch/Hermes-Agent)를 **한국어로, 무료로, 도커 한 방에** 시작하기.
 
-`docker compose up` 하나로 띄우고, **API 키 한 줄**이면 말이 통한다. 카드는 필요 없다.
-NAS·홈서버에 올리는 걸 기준으로 잡았다.
+`docker compose up` 하나로 띄우고, **나머지는 브라우저에서** 끝낸다.
+터미널로 키를 붙여넣을 일이 없다. 카드도 필요 없다. NAS·홈서버 기준이다.
 
 ```bash
-git clone https://github.com/<you>/awesome-hermes-starter && cd awesome-hermes-starter
-cp .env.example .env                                    # OpenRouter 키 한 줄
+git clone https://github.com/jshsakura/awesome-hermes-starter && cd awesome-hermes-starter
+cp .env.example .env                                    # 로그인 계정만 정한다
 HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
-# → http://<서버주소>:9119
+# → http://<서버주소>:9120  ← 여기서 다섯 단계
 ```
+
+**나스에 올리는 사람은 [기종별 복붙 설치 문서](docs/deploy.md)를 보면 된다** —
+일반 도커·포테이너와 Synology DSM 두 갈래로 적었다. 터미널이 필요 없다.
+
+## 브라우저에서 끝나는 첫 설정
+
+`docker compose up` 뒤에 **`http://<서버주소>:9120`** 을 열면 초심자용 설정 화면이 뜬다.
+헤르메스 본판 대시보드(`:9119`)는 이미 다 아는 사람을 위한 것이라, 그 앞에 한 겹을 뒀다.
+
+| 단계 | |
+|---|---|
+| **API 키** | OpenRouter 키 발급 절차를 화면에 적어두고, 붙여넣으면 즉시 검증한다 |
+| **모델** | 지금 실제로 무료인 모델만 라이브로 불러온다. 도구 호출 가능 여부·컨텍스트 크기를 같이 보여주고 폴백도 같이 고른다 |
+| **텔레그램** | @BotFather 절차부터 `/start` 까지 안내하고, **chat id 는 대신 찾아준다.** 마지막에 테스트 메시지를 실제로 쏜다 |
+| **도구** | 가입도 키도 필요 없는 MCP 다섯 개. 권장 3종은 버튼 하나로 |
+| **완료** | 적용·재시작하고 **에이전트에게 실제로 한 마디 물어본다** |
+
+여기까지 끝나면 헤르메스 본판으로 넘어가는 링크가 나온다. **익숙해지면 그쪽을 쓰면 된다.**
+설정 화면은 그 뒤로 안 열어도 된다.
+
+한국어·영어를 화면에서 토글할 수 있다.
+
+---
 
 아래 절반은 **한국어 큐레이션 목록**이다. 헤르메스 생태계는 이미 크고
 (본체 236,907★) 좋은 게 다 있는데, 한국어로 정리된 게 없다.
@@ -43,21 +68,29 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 
 ## 처음 켤 때
 
-**1. OpenRouter 키** — <https://openrouter.ai/keys> (카드 불필요). `.env` 에 넣는다.
-
-**2. 대시보드 계정** — `DASHBOARD_USER` / `DASHBOARD_PASSWORD` / `DASHBOARD_SECRET`.
-시크릿은 `openssl rand -hex 32`. 안 넣으면 재기동마다 로그아웃된다.
-
-**3. 텔레그램** (선택) — @BotFather 에서 봇 토큰을 받아 `.env` 에 넣고:
+`.env` 에 적을 것은 **로그인 정보 두 줄과 무작위 문자열 두 개**가 전부다.
+API 키도 봇 토큰도 여기 안 적는다.
 
 ```bash
-docker compose stop gateway        # 먼저 멈춘다 (아래 함정)
-./scripts/telegram-chat-id.sh      # 내 chat id 를 찍어준다
-docker compose up -d
+cp .env.example .env
+
+# DASHBOARD_USER / DASHBOARD_PASSWORD  — 두 화면이 같이 쓰는 계정
+# DASHBOARD_SECRET=$(openssl rand -hex 32)
+# API_SERVER_KEY=$(openssl rand -hex 24)
+
+HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 ```
 
+그리고 **`http://<서버주소>:9120`** 을 열어 다섯 단계를 따라가면 된다.
+OpenRouter 키 발급도, 텔레그램 봇 만들기도 화면이 안내한다.
+
 > **`TELEGRAM_ALLOWED_USERS` 를 비워두지 마라.** 비어 있으면 봇을 찾은 아무나
-> 내 에이전트와 대화한다 — 내 파일, 내 키, 내 쿼터로.
+> 내 에이전트와 대화한다 — 내 파일, 내 키, 내 쿼터로. 설정 화면이 대신 채워주고,
+> 비어 있으면 저장 자체를 거부한다.
+
+터미널에서 직접 하고 싶다면 `scripts/telegram-chat-id.sh` 가 chat id 를 찍어준다.
+그때는 **먼저 `docker compose stop gateway`** 로 게이트웨이를 멈춰야 한다 —
+텔레그램은 같은 토큰의 업데이트를 먼저 묻는 쪽에 한 번만 주기 때문이다.
 
 ## 무료 모델은 계속 바뀐다
 
@@ -155,6 +188,8 @@ docker compose --profile freemodels up -d
 
 한국어로 쓰인 헤르메스 자료라면 무엇이든 환영한다. 목록에 넣을 때는
 **별 수와 마지막 갱신일을 같이 적는다** — 죽은 링크로 보내지 않기 위해서다.
+
+문서는 한국어가 원본이다. `README.md` 를 고치면 `README.en.md` 도 같이 고친다.
 
 ## 라이선스
 

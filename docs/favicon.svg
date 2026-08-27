@@ -2,16 +2,11 @@
   <!-- awesome-hermes-starter: Winged Sprout (초보자의 새싹 + 헤르메스 날개) -->
   <rect width="32" height="32" rx="7" fill="#041c1c"/>
   <g fill="none" stroke-linecap="round" stroke-linejoin="round">
-    <!-- Hermes Wings (Warm Cream / Gold Accent) -->
     <path d="M16 18.5C11 18.5 6.5 15 3.5 9.5C7.5 8.5 12 12 16 16" stroke="#ffe6cb" stroke-width="1.6"/>
     <path d="M16 18.5C21 18.5 25.5 15 28.5 9.5C24.5 8.5 20 12 16 16" stroke="#ffe6cb" stroke-width="1.6"/>
     <path d="M16 22C12.5 22 8 19.5 6 16C8.5 15.5 12 17.5 16 20" stroke="#ffe6cb" stroke-width="1.4"/>
     <path d="M16 22C19.5 22 24 19.5 26 16C23.5 15.5 20 17.5 16 20" stroke="#ffe6cb" stroke-width="1.4"/>
-    
-    <!-- Sprout Stem (Teal / Mint) -->
     <path d="M16 26.5V11" stroke="#2dd4bf" stroke-width="1.8"/>
-    
-    <!-- Sprout Leaves (Beginner's Seedling) -->
     <path d="M16 12C13 7.5 9.5 8 8.5 10.5C8 12.5 11.5 13.8 16 14.5" fill="#2dd4bf" fill-opacity="0.35" stroke="#2dd4bf" stroke-width="1.5"/>
     <path d="M16 10.5C18.5 6 22 6.5 23 9C23.5 11 20 12.5 16 13" fill="#2dd4bf" fill-opacity="0.35" stroke="#2dd4bf" stroke-width="1.5"/>
   </g>

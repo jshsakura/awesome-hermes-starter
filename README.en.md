@@ -1,4 +1,4 @@
-# awesome-hermes-starter
+<img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
 
 **[한국어](README.md)** · English
 

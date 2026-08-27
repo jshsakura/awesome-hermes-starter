@@ -41,6 +41,30 @@
     <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter">GitHub</a>
   </div>
 
+
+  <!-- 헤르메스가 뭔가 -->
+  <section>
+    <h2 data-ko="헤르메스가 뭔가" data-en="What Hermes is"></h2>
+
+    <p class="sub" data-ko="Nous Research 가 만든 오픈소스 AI 비서다. 대화만 하는 챗봇이 아니라, 시키면 실제로 파일을 열고 웹을 읽고 프로그램을 돌린다. 그걸 내 서버 안에서 한다 — 대화도 기억도 남의 서비스가 아니라 내 디스크에 쌓인다."
+       data-en="An open-source AI assistant from Nous Research. Not a chatbot: told to do something, it opens files, reads pages and runs programs. And it does that on your own machine — the conversations and the memory land on your disk, not someone else's service."></p>
+
+    <ul class="cards">
+      <li><b data-ko="시켜서 쓴다" data-en="You give it work"></b>
+        <span data-ko="&quot;다운로드 폴더 정리해줘&quot;, &quot;이 문서 요약해줘&quot; 처럼 말로 시킨다. 도구를 골라 쓰는 건 에이전트가 알아서 한다."
+              data-en="&quot;Tidy my downloads&quot;, &quot;summarise this document&quot; — in plain words. Which tool to reach for is its problem, not yours."></span></li>
+      <li><b data-ko="기억한다" data-en="It remembers"></b>
+        <span data-ko="세션이 끝나도 기억과 스킬이 남는다. 쓸수록 내 방식에 맞춰진다."
+              data-en="Memory and skills persist between sessions. It fits itself to how you work."></span></li>
+      <li><b data-ko="폰에서 시킨다" data-en="From your phone"></b>
+        <span data-ko="텔레그램에 붙이면 밖에서도 시킬 수 있다. 나스는 켜져 있으니 24시간 대기한다."
+              data-en="Connect Telegram and you can use it from anywhere. The NAS is always on, so it is always there."></span></li>
+      <li><b data-ko="내 것이다" data-en="It is yours"></b>
+        <span data-ko="모델만 밖에서 빌려 쓰고 나머지는 전부 내 서버 안이다. 파일도 대화도 나가지 않는다."
+              data-en="Only the model is borrowed from outside. Files and conversations stay on your server."></span></li>
+    </ul>
+  </section>
+
   <!-- 다섯 단계 -->
   <section>
     <h2 data-ko="화면에서 하는 것" data-en="What the screen does"></h2>
@@ -106,6 +130,36 @@
       <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter/blob/main/docs/deploy.md"
          data-ko="기종별 설치 문서" data-en="Per-box install guide"></a>
       <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter/blob/main/docs/deploy.en.md">English guide</a>
+    </div>
+  </section>
+
+
+  <!-- 설치 후 -->
+  <section>
+    <h2 data-ko="설치한 다음" data-en="After it is installed"></h2>
+
+    <ol class="steps">
+      <li><span class="n">1</span><b data-ko="말을 건다" data-en="Say something"></b>
+        <em data-ko="대화 탭이나 텔레그램에서 평소 말투로 시킨다. 명령어를 외울 필요가 없다."
+            data-en="Ask in the chat tab or on Telegram, in ordinary words. There are no commands to learn."></em></li>
+      <li><span class="n">2</span><b data-ko="파일을 준다" data-en="Give it files"></b>
+        <em data-ko="./files 폴더에 넣은 것만 에이전트가 본다. 나스 공유 전체를 붙이지 말고 필요한 폴더만 붙인다."
+            data-en="It sees only what is in ./files. Mount the folder you mean, not the whole NAS share."></em></li>
+      <li><span class="n">3</span><b data-ko="한도를 안다" data-en="Know the limit"></b>
+        <em data-ko="무료 모델은 하루 50번이다. 막히면 대체 모델로 넘어가고, 한국시간 09:00 에 초기화된다."
+            data-en="Free models allow 50 requests a day. It falls through to your fallbacks, and resets at midnight UTC."></em></li>
+      <li><span class="n">4</span><b data-ko="백업한다" data-en="Back it up"></b>
+        <em data-ko="data 폴더가 기억하는 전부다. 그것만 복사해두면 통째로 옮길 수 있다."
+            data-en="The data folder is everything it remembers. Copy that and you have moved the whole agent."></em></li>
+      <li><span class="n">5</span><b data-ko="본판으로 넘어간다" data-en="Graduate"></b>
+        <em data-ko="익숙해지면 :9119 의 헤르메스 대시보드를 쓴다. 스킬·예약·세션 같은 나머지가 거기 있다."
+            data-en="When you are comfortable, use the Hermes dashboard on :9119 — skills, schedules and sessions live there."></em></li>
+    </ol>
+
+    <div class="note">
+      <span class="clabel" data-ko="주의" data-en="Careful"></span>
+      <span data-ko="에이전트는 시키면 파일을 지울 수도 있다. 승인 프롬프트를 끄지 말고, ./files 에는 없어지면 곤란한 원본을 두지 마라."
+            data-en="Told to, it will delete files. Leave the approval prompts on, and do not keep the only copy of anything in ./files."></span>
     </div>
   </section>
 

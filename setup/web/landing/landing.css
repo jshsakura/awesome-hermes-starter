@@ -140,3 +140,11 @@ footer a { color: var(--muted); }
   .steps em { grid-column: 1 / -1; }
   .cta .btn { flex: 1; justify-content: center; }
 }
+
+/* Four short cards for the "what is this" section — a paragraph would be
+   skipped, and this is the part a newcomer actually needs. */
+.cards { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+.cards li { border: 1px solid var(--line); padding: 15px 16px; }
+.cards b { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+.cards span { color: var(--muted); font-size: 13.5px; }
+@media (max-width: 620px) { .cards { grid-template-columns: 1fr; } }

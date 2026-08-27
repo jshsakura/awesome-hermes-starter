@@ -14,8 +14,8 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 # → http://<서버주소>:9120  ← 여기서 다섯 단계
 ```
 
-**[▶ 데모에서 직접 눌러보기](https://jshsakura.github.io/awesome-hermes-starter/)** — 설치 없이 설정 화면을 그대로 클릭해 볼 수 있다.
-같은 코드로 만든 화면이고, 서버 대신 정해둔 답을 쓴다.
+**[▶ 사이트에서 보기](https://jshsakura.github.io/awesome-hermes-starter/)** — 복붙할 compose 와 고칠 세 곳, 그리고
+설치 없이 눌러보는 [데모](https://jshsakura.github.io/awesome-hermes-starter/demo/). 데모는 같은 코드로 만든 화면이고 서버 대신 정해둔 답을 쓴다.
 
 **나스에 올리는 사람은 [기종별 복붙 설치 문서](docs/deploy.md)를 보면 된다** —
 일반 도커·포테이너와 Synology DSM 두 갈래로 적었다. 터미널이 필요 없다.

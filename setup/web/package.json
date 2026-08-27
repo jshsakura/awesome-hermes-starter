@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:demo": "VITE_DEMO=1 vite build"
+    "build:demo": "VITE_DEMO=1 vite build && node landing/build.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

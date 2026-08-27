@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>awesome-hermes-starter — 초보자를 위한 헤르메스 에이전트 설정 도우미</title>
+<meta name="description" content="나스에 헤르메스를 도커로 올리고, 브라우저에서 첫 설정을 끝낸다. 복붙용 compose 와 눌러보는 데모." />
+<meta property="og:title" content="awesome-hermes-starter" />
+<meta property="og:description" content="초보자를 위한 헤르메스 에이전트 설정 도우미" />
+<meta property="og:image" content="https://raw.githubusercontent.com/jshsakura/awesome-hermes-starter/main/docs/og-image.png" />
+<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+<link rel="stylesheet" href="./landing.css" />
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="wordmark">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 27V11" />
+        <path d="M16 12C13 7.5 9.5 8 8.5 10.5C8 12.5 11.5 13.8 16 14.5" />
+        <path d="M16 10.5C18.5 6 22 6.5 23 9C23.5 11 20 12.5 16 13" />
+        <path d="M16 18.5C11 18.5 6.5 15 3.5 9.5C7.5 8.5 12 12 16 16" />
+        <path d="M16 18.5C21 18.5 25.5 15 28.5 9.5C24.5 8.5 20 12 16 16" />
+      </svg>
+      <h1>awesome-hermes-starter</h1>
+    </div>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+
+  <p class="lede" data-ko="초보자를 위한 헤르메스 에이전트 설정 도우미."
+     data-en="A setup helper for Hermes Agent, for people starting out."></p>
+
+  <p class="sub" data-ko="나스에 도커로 올리고, 나머지는 브라우저에서 끝낸다. 터미널로 키를 붙여넣을 일이 없다."
+     data-en="Run it on your NAS with Docker and finish in the browser. No pasting keys into a terminal."></p>
+
+  <div class="cta">
+    <a class="btn primary" href="./demo/"><span data-ko="데모 눌러보기" data-en="Try the demo"></span> →</a>
+    <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter">GitHub</a>
+  </div>
+
+  <!-- 다섯 단계 -->
+  <section>
+    <h2 data-ko="화면에서 하는 것" data-en="What the screen does"></h2>
+    <ol class="steps">
+      <li><span class="n">1</span><b data-ko="API 키" data-en="API key"></b>
+        <em data-ko="OpenRouter 키 발급 절차를 적어두고, 붙여넣으면 즉시 검증한다."
+            data-en="The steps to get an OpenRouter key, verified the moment you paste it."></em></li>
+      <li><span class="n">2</span><b data-ko="모델" data-en="Model"></b>
+        <em data-ko="지금 실제로 무료인 모델만 불러온다. 도구 호출 가능 여부와 컨텍스트 크기를 같이 보여준다."
+            data-en="The live list of what is actually free, with tool calling and context shown."></em></li>
+      <li><span class="n">3</span><b data-ko="텔레그램" data-en="Telegram"></b>
+        <em data-ko="@BotFather 절차부터 /start 까지 안내하고, chat id 는 대신 찾아준다."
+            data-en="From @BotFather to /start — and it finds your chat id for you."></em></li>
+      <li><span class="n">4</span><b data-ko="도구" data-en="Tools"></b>
+        <em data-ko="가입도 키도 필요 없는 MCP 다섯 개. 권장 3종은 버튼 하나로."
+            data-en="Five MCP servers that need no signup. The recommended three, one button."></em></li>
+      <li><span class="n">5</span><b data-ko="완료" data-en="Done"></b>
+        <em data-ko="적용하고 재시작한 뒤, 에이전트에게 실제로 한 마디 물어본다."
+            data-en="Applies, restarts, and actually asks the agent a question."></em></li>
+    </ol>
+  </section>
+
+  <!-- 설치 -->
+  <section>
+    <h2 data-ko="설치" data-en="Install"></h2>
+
+    <p class="sub" data-ko="아래를 통째로 복사해 포테이너 Stacks 나 Synology Container Manager 에 붙여넣는다. 빌드가 없어서 붙여넣기만 하면 된다."
+       data-en="Copy the whole thing into Portainer Stacks or Synology Container Manager. Nothing builds, so pasting is all it takes."></p>
+
+    <div class="fixme">
+      <span class="clabel" data-ko="고칠 곳은 세 군데" data-en="Three things to change"></span>
+      <ol>
+        <li><code>/CHANGE/ME</code>
+          <span data-ko="→ 저장 경로. 일반 리눅스는 /opt/hermes, Synology 는 /volume1/docker/hermes. 그 아래 data 와 files 폴더를 미리 만들어 둔다."
+                data-en="→ where it lives. /opt/hermes on plain Linux, /volume1/docker/hermes on Synology. Create data and files under it first."></span></li>
+        <li><code>HERMES_UID</code> / <code>HERMES_GID</code>
+          <span data-ko="→ 파일 주인. 리눅스는 id -u / id -g, Synology 는 사용자마다 달라 SSH 로 id 계정 확인(보통 1026 / 100). 틀리면 컨테이너는 떠도 파일 관리자에서 폴더를 못 연다."
+                data-en="→ who owns the files. id -u / id -g on Linux; on Synology it differs per user, check with id account (usually 1026 / 100). Get it wrong and the containers run but your file manager cannot open the folder."></span></li>
+        <li><code>CHANGE_ME_PASSWORD</code> / <code>CHANGE_ME_SECRET</code>
+          <span data-ko="→ 로그인 비밀번호와 아무 긴 무작위 문자열. openssl rand -hex 32 로 만들면 된다."
+                data-en="→ a password, and any long random string. openssl rand -hex 32 works."></span></li>
+      </ol>
+    </div>
+
+    <div class="codebox">
+      <div class="codebar">
+        <span>docker-compose.yml</span>
+        <button id="copy" type="button" data-ko="복사" data-en="Copy"></button>
+      </div>
+      <pre id="compose"><code>__COMPOSE__</code></pre>
+    </div>
+
+    <p class="sub" data-ko="띄운 뒤 브라우저로 http://&lt;서버주소&gt;:9120 에 들어가면 위 다섯 단계가 나온다."
+       data-en="Then open http://&lt;your-server&gt;:9120 and the five steps above appear."></p>
+
+    <div class="note">
+      <span class="clabel" data-ko="참고" data-en="Note"></span>
+      <span data-ko="OpenRouter 키와 텔레그램 토큰은 여기 안 적는다. 띄운 뒤 화면에서 넣는다."
+            data-en="Your OpenRouter key and Telegram token do not go in here. You add them in the screen afterwards."></span>
+    </div>
+
+    <div class="cta">
+      <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter/blob/main/docs/deploy.md"
+         data-ko="기종별 설치 문서" data-en="Per-box install guide"></a>
+      <a class="btn" href="https://github.com/jshsakura/awesome-hermes-starter/blob/main/docs/deploy.en.md">English guide</a>
+    </div>
+  </section>
+
+  <footer>
+    <a href="https://github.com/jshsakura/awesome-hermes-starter">jshsakura/awesome-hermes-starter</a>
+    · MIT ·
+    <a href="https://github.com/NousResearch/Hermes-Agent">Hermes Agent</a>
+  </footer>
+</div>
+
+<script>
+  // Korean first, English alongside — the same rule the app and the READMEs use.
+  const pick = () => localStorage.getItem('lang') || ((navigator.language || '').startsWith('ko') ? 'ko' : 'en')
+  let lang = pick()
+
+  function apply() {
+    document.documentElement.lang = lang
+    for (const el of document.querySelectorAll('[data-ko]')) {
+      el.textContent = lang === 'ko' ? el.dataset.ko : el.dataset.en
+    }
+    document.getElementById('lang').textContent = lang === 'ko' ? 'English' : '한국어'
+    try { localStorage.setItem('lang', lang) } catch (e) { /* private mode */ }
+  }
+  document.getElementById('lang').onclick = () => { lang = lang === 'ko' ? 'en' : 'ko'; apply() }
+  apply()
+
+  const copyBtn = document.getElementById('copy')
+  copyBtn.onclick = async () => {
+    const text = document.getElementById('compose').innerText
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch (e) {
+      // Older browsers and non-HTTPS contexts have no clipboard API; select the
+      // block instead so Ctrl+C still works rather than the button doing nothing.
+      const r = document.createRange()
+      r.selectNodeContents(document.getElementById('compose'))
+      getSelection().removeAllRanges()
+      getSelection().addRange(r)
+      return
+    }
+    const before = copyBtn.textContent
+    copyBtn.textContent = lang === 'ko' ? '복사됨' : 'Copied'
+    setTimeout(() => { copyBtn.textContent = before }, 1600)
+  }
+</script>
+</body>
+</html>

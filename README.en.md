@@ -14,8 +14,8 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 # → http://<your-server>:9120  ← five steps here
 ```
 
-**[▶ Try the demo](https://jshsakura.github.io/awesome-hermes-starter/)** — click through the real setup screen without installing
-anything. Same code, canned answers instead of a server.
+**[▶ See the site](https://jshsakura.github.io/awesome-hermes-starter/)** — the compose to copy, the three things to change, and a
+[clickable demo](https://jshsakura.github.io/awesome-hermes-starter/demo/) of the screen. Same code, canned answers instead of a server.
 
 **Installing on a NAS? See the [per-box copy-paste guide](docs/deploy.en.md)** —
 plain Docker · Portainer and Synology DSM. No terminal.

@@ -7,8 +7,8 @@ const demo = process.env.VITE_DEMO === '1'
 
 export default defineConfig({
   plugins: [react()],
-  base: demo ? '/awesome-hermes-starter/' : '/',
-  build: { outDir: demo ? 'demo-dist' : 'dist', emptyOutDir: true },
+  base: demo ? '/awesome-hermes-starter/demo/' : '/',
+  build: { outDir: demo ? 'demo-dist/demo' : 'dist', emptyOutDir: true },
   // During `npm run dev` the API lives in the container; proxy so the dev
   // server and the built bundle behave identically.
   server: {

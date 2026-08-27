@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>awesome-hermes-starter — 초보자를 위한 헤르메스 에이전트 설정 도우미</title>
 <meta name="description" content="나스에 헤르메스를 도커로 올리고, 브라우저에서 첫 설정을 끝낸다. 복붙용 compose 와 눌러보는 데모." />
-<meta property="og:title" content="awesome-hermes-starter" />
-<meta property="og:description" content="초보자를 위한 헤르메스 에이전트 설정 도우미" />
+<meta property="og:title" content="초보자를 위한 헤르메스 에이전트 — 나스에 도커로 올리고 브라우저에서 끝낸다" />
+<meta property="og:description" content="API 키·모델·텔레그램·도구를 다섯 단계로. 복붙할 compose 와 눌러보는 데모." />
 <meta property="og:image" content="https://raw.githubusercontent.com/jshsakura/awesome-hermes-starter/main/docs/og-image.png" />
 <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
 <link rel="stylesheet" href="./landing.css" />
@@ -98,17 +98,20 @@
        data-en="Copy the whole thing into Portainer Stacks or Synology Container Manager. Nothing builds, so pasting is all it takes."></p>
 
     <div class="fixme">
-      <span class="clabel" data-ko="고칠 곳은 세 군데" data-en="Three things to change"></span>
+      <span class="clabel" data-ko="고칠 곳" data-en="What to change"></span>
       <ol>
         <li><code>/CHANGE/ME</code>
           <span data-ko="→ 저장 경로. 일반 리눅스는 /opt/hermes, Synology 는 /volume1/docker/hermes. 그 아래 data 와 files 폴더를 미리 만들어 둔다."
                 data-en="→ where it lives. /opt/hermes on plain Linux, /volume1/docker/hermes on Synology. Create data and files under it first."></span></li>
-        <li><code>HERMES_UID</code> / <code>HERMES_GID</code>
-          <span data-ko="→ 파일 주인. 리눅스는 id -u / id -g, Synology 는 사용자마다 달라 SSH 로 id 계정 확인(보통 1026 / 100). 틀리면 컨테이너는 떠도 파일 관리자에서 폴더를 못 연다."
-                data-en="→ who owns the files. id -u / id -g on Linux; on Synology it differs per user, check with id account (usually 1026 / 100). Get it wrong and the containers run but your file manager cannot open the folder."></span></li>
+        <li><code>CHANGE_ME_UID</code> / <code>CHANGE_ME_GID</code>
+          <span data-ko="→ 파일 주인. 나스마다 다르니 반드시 확인한다. 리눅스는 id -u / id -g (대개 1000/1000), Synology 는 사용자마다 달라 SSH 로 id 내계정 (보통 1026/100). 틀리면 컨테이너는 멀쩡히 뜨는데 파일 관리자에서 폴더를 못 연다."
+                data-en="→ who owns the files. This differs per box, so look it up: id -u / id -g on Linux (usually 1000/1000); on Synology it is per user, check with id youraccount over SSH (often 1026/100). Get it wrong and the containers start fine but your file manager cannot open the folder."></span></li>
         <li><code>CHANGE_ME_PASSWORD</code> / <code>CHANGE_ME_SECRET</code>
-          <span data-ko="→ 로그인 비밀번호와 아무 긴 무작위 문자열. openssl rand -hex 32 로 만들면 된다."
-                data-en="→ a password, and any long random string. openssl rand -hex 32 works."></span></li>
+          <span data-ko="→ 로그인 비밀번호와 아무 긴 무작위 문자열. openssl rand -hex 32 로 만들면 된다. 시크릿은 쿠키 서명에 쓰여서, 없으면 재시작할 때마다 로그아웃된다."
+                data-en="→ a password, and any long random string. openssl rand -hex 32 works. The secret signs session cookies; without a stable one every restart signs you out."></span></li>
+        <li><code>CHANGE_ME_HOST</code>
+          <span data-ko="→ 나스 주소. 설정이 끝난 뒤 대시보드로 넘어가는 버튼이 여기로 간다. 예: 192.168.0.10"
+                data-en="→ your NAS address, e.g. 192.168.0.10. The button that hands you to the dashboard at the end points here."></span></li>
       </ol>
     </div>
 

@@ -1,8 +1,8 @@
-<img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
+# awesome-hermes-starter
 
 **[한국어](README.md)** · English
 
-[Hermes Agent](https://github.com/NousResearch/Hermes-Agent) on your NAS — **one `docker compose up`, free models, no credit card.**
+**A setup helper for [Hermes Agent](https://github.com/NousResearch/Hermes-Agent), for people starting out.**
 
 Bring it up with one command and **finish in the browser.** No pasting keys into
 a terminal, and no credit card. Built for NAS boxes and home servers.

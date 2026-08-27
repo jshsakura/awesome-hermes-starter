@@ -1,8 +1,8 @@
-<img src="docs/hero.png" alt="awesome-hermes-starter" width="100%">
+# awesome-hermes-starter
 
 한국어 · **[English](README.en.md)**
 
-[Hermes Agent](https://github.com/NousResearch/Hermes-Agent)를 **한국어로, 무료로, 도커 한 방에** 시작하기.
+**초보자를 위한 [Hermes Agent](https://github.com/NousResearch/Hermes-Agent) 설정 도우미.**
 
 `docker compose up` 하나로 띄우고, **나머지는 브라우저에서** 끝낸다.
 터미널로 키를 붙여넣을 일이 없다. 카드도 필요 없다. NAS·홈서버 기준이다.

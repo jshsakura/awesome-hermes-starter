@@ -1,0 +1,53 @@
+# Publishes the setup screen to GitHub Pages as a clickable demo.
+#
+# It is the same React app, built with VITE_DEMO=1 so every request goes to
+# canned answers instead of a server. That way the demo cannot drift from the
+# real thing: there is one set of components and one set of copy.
+
+name: demo site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'setup/web/**'
+      - '.github/workflows/demo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel a half-finished deploy; let the running one land first.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: setup/web/package-lock.json
+      - run: npm ci
+        working-directory: setup/web
+      - run: npm run build:demo
+        working-directory: setup/web
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: setup/web/demo-dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

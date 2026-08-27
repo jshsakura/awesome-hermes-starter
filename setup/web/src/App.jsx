@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from './api.js'
+
+// Demo builds get a standing banner. Without it the screen is indistinguishable
+// from a real install, and someone will paste a real API key into it.
+const DEMO = import.meta.env.VITE_DEMO === '1'
 import { STRINGS } from './i18n.js'
 import Chat from './Chat.jsx'
 import { STEP_ICONS, KeyIcon, ModelIcon, TelegramIcon, ToolsIcon, DoneIcon, LockIcon, Mark, FlagKR, FlagUS, ChatIcon, GearIcon, RefreshIcon, ExternalIcon } from './Icons.jsx'
@@ -30,6 +34,17 @@ function Callout({ label, kind = '', children }) {
     <div className={`callout ${kind}`}>
       <span className="clabel">{label}</span>
       {children}
+    </div>
+  )
+}
+
+function DemoBanner({ t }) {
+  return (
+    <div className="demo">
+      <span>{t.demoBanner}</span>
+      <a href="https://github.com/jshsakura/awesome-hermes-starter" target="_blank" rel="noreferrer">
+        {t.demoCta} <ExternalIcon />
+      </a>
     </div>
   )
 }
@@ -69,6 +84,7 @@ function Login({ t, lang, setLang, onIn }) {
 
   return (
     <div className="app narrow">
+      {DEMO && <DemoBanner t={t} />}
       <header>
         <div className="wordmark">
           <Mark />
@@ -195,6 +211,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {DEMO && <DemoBanner t={t} />}
       <header>
         <div className="wordmark">
           <Mark />

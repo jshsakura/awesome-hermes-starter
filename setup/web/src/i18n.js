@@ -5,6 +5,8 @@
 export const STRINGS = {
   ko: {
     appName: 'Hermes Starter',
+    demoBanner: '데모 화면입니다. 아무것도 저장되지 않고, 실제 에이전트도 돌지 않습니다.',
+    demoCta: '직접 설치하기',
     title: 'Hermes 시작하기',
     subtitle: '네 단계만 거치면 바로 쓸 수 있습니다.',
     langLabel: 'English',
@@ -204,6 +206,8 @@ export const STRINGS = {
 
   en: {
     appName: 'Hermes Starter',
+    demoBanner: 'This is a demo. Nothing is saved, and no agent is running behind it.',
+    demoCta: 'Install it yourself',
     title: 'Get Hermes talking',
     subtitle: 'Four steps to a working agent. No credit card.',
     langLabel: '한국어',

@@ -591,3 +591,17 @@ a svg { width: 12px; height: 12px; vertical-align: -1px; margin-left: 3px; }
   width: 7px; height: 1px; background: var(--line-strong);
 }
 .glossary b { color: var(--fg); font-weight: 600; }
+
+/* Demo banner. Deliberately loud: this screen is otherwise identical to a real
+   install, and the one thing that must never happen is a stranger pasting a
+   live API key into a page on github.io. */
+.demo {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  border: 1px solid var(--warn);
+  border-left: 3px solid var(--warn);
+  color: var(--warn);
+  padding: 11px 15px; margin-bottom: 26px; font-size: 13px;
+}
+.demo a { color: var(--warn); white-space: nowrap; }
+@media (max-width: 620px) { .demo { margin-bottom: 18px; } }

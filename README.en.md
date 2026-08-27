@@ -20,7 +20,7 @@ HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d
 **Installing on a NAS? See the [per-box copy-paste guide](docs/deploy.en.md)** —
 plain Docker · Portainer and Synology DSM. No terminal.
 
-## What Hermes is
+## What can Hermes Agent do?
 
 An **open-source AI assistant** from Nous Research. Not a chatbot: told to do something,
 it opens files, reads pages and runs programs. And it does that **on your own server** —
@@ -31,7 +31,7 @@ the conversations and the memory land on your disk, not someone else's service.
 - **From your phone.** Connect Telegram and you can use it from anywhere. A NAS is always on
 - **It is yours.** Only the model is borrowed from outside; everything else stays on your server
 
-## Why this exists
+## Why does this repo exist?
 
 Hermes is **not hard to install.** `curl | bash` and it is on your machine. What comes
 after is the hard part.
@@ -44,7 +44,7 @@ after is the hard part.
 This distribution removes all three. Browser only, nothing on the host but Docker, and
 you start on **OpenRouter's free models.**
 
-## First-run setup, in the browser
+## What the setup screen does for you
 
 After `docker compose up`, open **`http://<your-server>:9120`**. Hermes' own dashboard
 (`:9119`) assumes you already know what you are doing, so this sits in front of it.

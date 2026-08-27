@@ -1,0 +1,111 @@
+# hermes-starter — Hermes Agent, ready to talk, on one `docker compose up`.
+#
+# Upstream's compose builds the image from source (SQLite is compiled in the
+# Dockerfile). This uses the published image instead, so nothing is compiled and
+# Hermes is always current: `nousresearch/hermes-agent:latest` is rebuilt
+# upstream continuously.
+#
+# Three services, and each exists for a reason:
+#
+#   gateway     talks to Telegram. Outbound only — it long-polls, nothing
+#               connects to it, so it needs no published port.
+#   dashboard   the web UI. Published, and therefore password-protected.
+#   freemodels  keeps the free model list current (see the note on that service).
+#
+# Nothing here is Hermes-specific configuration. The agent configures itself
+# through the dashboard on first run; this file only decides where it lives,
+# what it can reach, and who can open it.
+
+services:
+  gateway:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-gateway
+    restart: unless-stopped
+    command: ["gateway", "run"]
+    volumes:
+      # Everything Hermes remembers — config, sessions, skills, credentials.
+      # Back this up and you have backed up your agent.
+      - ./data:/opt/data
+      # What the agent is allowed to read and write. On a NAS this is the
+      # share you actually care about; keep it narrow rather than mounting
+      # the whole filesystem.
+      - ./files:/files
+    environment:
+      # Files created inside the container are owned by this uid/gid on the
+      # host. Without it you get root-owned files in ./data that you cannot
+      # edit. `HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d`
+      - HERMES_UID=${HERMES_UID:-1000}
+      - HERMES_GID=${HERMES_GID:-1000}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      # Who may talk to the bot. Leave this empty and anyone who finds your
+      # bot is talking to your agent, with your files and your quota.
+      - TELEGRAM_ALLOWED_USERS=${TELEGRAM_ALLOWED_USERS:-}
+      - TZ=${TZ:-UTC}
+
+  dashboard:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-dashboard
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    # 0.0.0.0 so it is reachable from your laptop rather than only from inside
+    # the container. That is safe here only because a non-loopback bind refuses
+    # to start without an auth provider — `--insecure` stopped bypassing this in
+    # the June 2026 hardening — and the basic-auth vars below supply one.
+    command: ["dashboard", "--host", "0.0.0.0", "--no-open"]
+    ports:
+      - "${DASHBOARD_PORT:-9119}:9119"
+    volumes:
+      - ./data:/opt/data
+      - ./files:/files
+    environment:
+      - HERMES_UID=${HERMES_UID:-1000}
+      - HERMES_GID=${HERMES_GID:-1000}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      - HERMES_DASHBOARD_BASIC_AUTH_USERNAME=${DASHBOARD_USER:?set DASHBOARD_USER in .env}
+      - HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${DASHBOARD_PASSWORD:?set DASHBOARD_PASSWORD in .env}
+      # Signs session cookies. Without it, every restart logs everyone out.
+      - HERMES_DASHBOARD_BASIC_AUTH_SECRET=${DASHBOARD_SECRET:?set DASHBOARD_SECRET in .env}
+      - TZ=${TZ:-UTC}
+
+  # Free models on OpenRouter come and go — three lost their free endpoint on a
+  # single day in August 2026 while keeping the ``:free`` name everyone had
+  # written down. A pinned model id quietly stops working; the list has to be
+  # re-read.
+  #
+  # The upstream rotator plugin does this from a system crontab, which is why it
+  # documents itself as not supporting Docker: a crontab inside a container
+  # needs a cron daemon that is not running here. This sidecar replaces the
+  # crontab with a plain sleep loop — same command, no daemon.
+  #
+  # 00:01 UTC is deliberate: OpenRouter's free-model allowance resets at
+  # midnight UTC, so the list is refreshed just after the day rolls over.
+  freemodels:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-freemodels
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          now=$$(date -u +%s)
+          # Next 00:01 UTC, strictly in the future.
+          next=$$(date -u -d "tomorrow 00:01" +%s 2>/dev/null || echo $$((now + 86400)))
+          sleep $$(( next > now ? next - now : 3600 ))
+          hermes freemodels sync || echo "[freemodels] sync failed; retrying tomorrow"
+        done
+    volumes:
+      - ./data:/opt/data
+    environment:
+      - HERMES_UID=${HERMES_UID:-1000}
+      - HERMES_GID=${HERMES_GID:-1000}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY in .env}
+      - TZ=UTC
+    profiles:
+      # Off unless you ask for it, because it rewrites model.default in your
+      # config. Turn it on with `docker compose --profile freemodels up -d`
+      # once the rotator plugin is installed.
+      - freemodels
